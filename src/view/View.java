@@ -10,6 +10,19 @@ public class View extends JFrame implements ActionListener
     private BlackJack bj;
     private JPanel playerPanel;
     private JPanel bankPanel;
+
+    public JButton getAnotherButton() {
+        return anotherButton;
+    }
+
+    public JButton getNoMoreButton() {
+        return noMoreButton;
+    }
+
+    public JButton getResetButton() {
+        return resetButton;
+    }
+
     private JButton anotherButton;
     private JButton noMoreButton;
     private JButton resetButton;
@@ -294,10 +307,5 @@ public class View extends JFrame implements ActionListener
                 }
                 break;
         }
-    }
-
-    public static void main(String[] Args)
-    {
-        new View();
     }
 }
