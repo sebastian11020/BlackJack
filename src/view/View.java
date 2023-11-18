@@ -5,8 +5,7 @@ import java.awt.event.*;
 import java.io.*;
 import model.*;
 
-public class View extends JFrame implements ActionListener
-{
+public class View extends JFrame implements ActionListener {
     private BlackJack bj;
     private JPanel playerPanel;
     private JPanel bankPanel;

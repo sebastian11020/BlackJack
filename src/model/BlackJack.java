@@ -2,8 +2,7 @@ package model;
 
 import java.util.LinkedList;
 import java.util.List;
-public class BlackJack
-{
+public class BlackJack {
     private Deck deck;
     private Hand playerHand;
     private Hand bankHand;

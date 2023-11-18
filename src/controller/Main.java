@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 public class Main implements ActionListener {
     private View view;
     private BlackJack model;
+
     public Main(View view) {
         this.view = view;
         this.model = new BlackJack();
