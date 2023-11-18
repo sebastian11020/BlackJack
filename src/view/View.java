@@ -4,8 +4,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import model.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
 
 public class View extends JFrame implements ActionListener {
+    private ServerSocket serverSocket;
+    private ArrayList<ObjectOutputStream> outputStreams;
+    private ArrayList<Player> players;
     private BlackJack bj;
     private JPanel playerPanel;
     private JPanel bankPanel;
@@ -25,12 +31,12 @@ public class View extends JFrame implements ActionListener {
     private JButton anotherButton;
     private JButton noMoreButton;
     private JButton resetButton;
+    private JButton connectButton;
 
-    public View()
-    {
+    public View() {
         bj = new BlackJack();
         JFrame frame = new JFrame("BlackJack GUI");
-        frame.setMinimumSize(new Dimension(640,480));
+        frame.setMinimumSize(new Dimension(640, 480));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel topPanel = new JPanel();
@@ -38,10 +44,13 @@ public class View extends JFrame implements ActionListener {
 
         FlowLayout topPanelLay = new FlowLayout();
         topPanel.setLayout(topPanelLay);
+        topPanel.add(this.connectButton = new JButton("Connect"));
         topPanel.add(this.anotherButton = new JButton("Another Card"));
         topPanel.add(this.noMoreButton = new JButton("No more Card"));
         topPanel.add(this.resetButton = new JButton("Reset"));
 
+        this.connectButton.setActionCommand("connect");
+        this.connectButton.addActionListener(this);
         this.anotherButton.setActionCommand("another");
         this.anotherButton.addActionListener(this);
         this.noMoreButton.setActionCommand("noMore");
@@ -50,8 +59,7 @@ public class View extends JFrame implements ActionListener {
         this.resetButton.addActionListener(this);
 
 
-
-        GridLayout centerPanelLay = new GridLayout(2,1);
+        GridLayout centerPanelLay = new GridLayout(2, 1);
         centerPanel.setLayout(centerPanelLay);
         this.bankPanel = new JPanel();
         bankPanel.setBorder(BorderFactory.createTitledBorder("Bank"));
@@ -60,8 +68,34 @@ public class View extends JFrame implements ActionListener {
         centerPanel.add(bankPanel);
         centerPanel.add(playerPanel);
 
-        frame.add(topPanel,BorderLayout.NORTH);
-        frame.add(centerPanel,BorderLayout.CENTER);
+        frame.add(topPanel, BorderLayout.NORTH);
+        frame.add(centerPanel, BorderLayout.CENTER);
+
+        try {
+            serverSocket = new ServerSocket(8888);
+            outputStreams = new ArrayList<>();
+            players = new ArrayList<>();
+
+            System.out.println("Server is waiting for players...");
+
+            for (int i = 0; i < 4; i++) {
+                // Espera la conexión de hasta 4 jugadores
+                System.out.println("Waiting for player " + (i + 1) + " to connect...");
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Player " + (i + 1) + " connected!");
+                ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
+                outputStreams.add(oos);
+
+                // Recibe información del jugador desde el cliente
+                Player player = (Player) new ObjectInputStream(clientSocket.getInputStream()).readObject();
+                players.add(player);
+            }
+
+            startGame();
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         try
         {
@@ -79,8 +113,16 @@ public class View extends JFrame implements ActionListener {
         frame.pack();
         frame.setVisible(true);
     }
+    private void startGame() {
+        try {
+            updateClients(bj);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-    public void addToPanel(JPanel p, String token) throws FileNotFoundException
+    }
+
+        public void addToPanel(JPanel p, String token) throws FileNotFoundException
     {
         File file = new File("./img/card_"+token+".png");
         if(!file.exists())
@@ -88,6 +130,13 @@ public class View extends JFrame implements ActionListener {
         ImageIcon icon = new ImageIcon(file.getPath());
         JLabel label = new JLabel(icon);
         p.add(label);
+    }
+
+    private void updateClients(BlackJack updatedGame) throws IOException {
+        for (ObjectOutputStream oos : outputStreams) {
+            oos.writeObject(updatedGame);
+            oos.flush();
+        }
     }
 
     public void updateBankPanel() throws FileNotFoundException
@@ -149,6 +198,12 @@ public class View extends JFrame implements ActionListener {
             }
         }
         this.bankPanel.updateUI();
+
+        try {
+            updateClients(bj);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updatePlayerPanel() throws FileNotFoundException
@@ -222,89 +277,114 @@ public class View extends JFrame implements ActionListener {
             }
         }
         this.playerPanel.updateUI();
+        try {
+            updateClients(bj);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void connectPlayer() {
+        String playerName = JOptionPane.showInputDialog("Enter your name:");
+        if (playerName != null && !playerName.trim().isEmpty()) {
+            try {
+                Socket socket = new Socket("localhost", 8888);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+
+                Player player = new Player(playerName);
+                oos.writeObject(player);
+                oos.flush();
+                outputStreams.add(oos);
+
+
+                players.add(player);
+
+                JOptionPane.showMessageDialog(null, "Connected as: " + playerName, "Player Connected", JOptionPane.INFORMATION_MESSAGE);
+
+                if (players.size() == 4) {
+                    startGame();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error connecting to the server", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid player name", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    public void actionPerformed(ActionEvent e)
-    {
 
-        switch(e.getActionCommand())
-        {
+
+    public void actionPerformed(ActionEvent e) {
+        switch (e.getActionCommand()) {
+            case "connect":
+                connectPlayer();
+                break;
             case "another":
-                try
-                {
+                try {
                     this.bj.playerDrawAnotherCard();
-                    if(this.bj.isGameFinished())
-                    {
-                        this.anotherButton.setEnabled(false);
-                        this.noMoreButton.setEnabled(false);
+                    if (this.bj.isGameFinished()) {
+                        disableButtons();
+                    } else {
+                        enableButtons();
                     }
-                    else
-                    {
-                        this.anotherButton.setEnabled(true);
-                        this.noMoreButton.setEnabled(true);
-                    }
-                }
-                catch(EmptyDeckException ex)
-                {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (EmptyDeckException ex) {
+                    handleErrorMessage(ex.getMessage());
                     System.exit(-1);
                 }
-                try
-                {
+                try {
                     updatePlayerPanel();
-                }
-                catch(FileNotFoundException ex)
-                {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (FileNotFoundException ex) {
+                    handleErrorMessage(ex.getMessage());
                     System.exit(-1);
                 }
                 break;
             case "noMore":
-                try
-                {
+                try {
                     this.bj.bankLastTurn();
-                    this.anotherButton.setEnabled(false);
-                    this.noMoreButton.setEnabled(false);
-                }
-                catch(EmptyDeckException ex)
-                {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    disableButtons();
+                } catch (EmptyDeckException ex) {
+                    handleErrorMessage(ex.getMessage());
                     System.exit(-1);
                 }
-                try
-                {
+                try {
                     updateBankPanel();
                     updatePlayerPanel();
-                }
-                catch(FileNotFoundException ex)
-                {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (FileNotFoundException ex) {
+                    handleErrorMessage(ex.getMessage());
                     System.exit(-1);
                 }
                 break;
             case "reset":
-                try
-                {
+                try {
                     this.bj.reset();
-                    this.anotherButton.setEnabled(true);
-                    this.noMoreButton.setEnabled(true);
-                }
-                catch(EmptyDeckException ex)
-                {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    enableButtons();
+                } catch (EmptyDeckException ex) {
+                    handleErrorMessage(ex.getMessage());
                     System.exit(-1);
                 }
-                try
-                {
+                try {
                     updatePlayerPanel();
                     updateBankPanel();
-                }
-                catch(FileNotFoundException ex)
-                {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (FileNotFoundException ex) {
+                    handleErrorMessage(ex.getMessage());
                     System.exit(-1);
                 }
                 break;
         }
+
+    }
+    private void enableButtons() {
+        this.anotherButton.setEnabled(true);
+        this.noMoreButton.setEnabled(true);
+    }
+
+    private void disableButtons() {
+        this.anotherButton.setEnabled(false);
+        this.noMoreButton.setEnabled(false);
+    }
+
+    private void handleErrorMessage(String message) {
+        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

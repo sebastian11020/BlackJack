@@ -2,7 +2,8 @@ package model;
 
 import java.util.LinkedList;
 import java.util.List;
-public class BlackJack {
+import java.io.Serializable;
+public class BlackJack implements Serializable{
     private Deck deck;
     private Hand playerHand;
     private Hand bankHand;
