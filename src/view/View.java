@@ -115,13 +115,14 @@ public class View extends JFrame implements ActionListener {
     }
     private void startGame() {
         try {
-            updateClients(bj);
+            for (ObjectOutputStream oos : outputStreams) {
+                oos.writeObject(bj);
+                oos.flush();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
         public void addToPanel(JPanel p, String token) throws FileNotFoundException
     {
         File file = new File("./img/card_"+token+".png");
@@ -139,8 +140,15 @@ public class View extends JFrame implements ActionListener {
         }
     }
 
-    public void updateBankPanel() throws FileNotFoundException
-    {
+    public void updateBankPanel() throws FileNotFoundException {
+        try {
+            for (ObjectOutputStream oos : outputStreams) {
+                oos.writeObject(bj);
+                oos.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.bankPanel.removeAll();
         for(Card c : this.bj.getBankCardList())
         {
@@ -208,6 +216,14 @@ public class View extends JFrame implements ActionListener {
 
     public void updatePlayerPanel() throws FileNotFoundException
     {
+        try {
+            for (ObjectOutputStream oos : outputStreams) {
+                oos.writeObject(bj);
+                oos.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.playerPanel.removeAll();
         for(Card c : this.bj.getPlayerCardList())
         {
@@ -312,6 +328,7 @@ public class View extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(null, "Invalid player name", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
 
 
