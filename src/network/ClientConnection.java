@@ -17,22 +17,20 @@ public class ClientConnection implements Runnable {
     private DataOutputStream output;
     private IObserver iObserver;
     private Thread thread;
+    private boolean aBoolean;
 
-    public ClientConnection(String host, int port, User user) throws IOException {
-        this.socket = new Socket(host, port);
+    public ClientConnection() throws IOException {
+        this.aBoolean = false;
         thread = new Thread(this);
-        input = new DataInputStream(socket.getInputStream());
-        output = new DataOutputStream(socket.getOutputStream());
-
-        setInitialInfo(user);
     }
 
-    public static void main(String[] args) {
-        try {
-            new ClientConnection("localhost", 3001, new User("paco"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void connectToServer(String host, User user) throws IOException {
+        this.socket = new Socket(host, 3001);
+        input = new DataInputStream(socket.getInputStream());
+        output = new DataOutputStream(socket.getOutputStream());
+        setInitialInfo(user);
+        aBoolean = true;
+        thread.start();
     }
 
     private void setInitialInfo(User user) throws IOException {
@@ -43,7 +41,7 @@ public class ClientConnection implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        while (aBoolean) {
             try {
                 if (input.available() > 0) {
                     Commands commands = Commands.valueOf(input.readUTF());
@@ -81,7 +79,6 @@ public class ClientConnection implements Runnable {
 
     public void setObserver(IObserver observer) {
         this.iObserver = observer;
-        thread.start();
     }
 
     public void anotherCard() throws IOException {

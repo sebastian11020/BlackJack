@@ -5,6 +5,7 @@ import model.EmptyDeckException;
 import model.IObserver;
 import model.User;
 import network.ClientConnection;
+import view.LoginDialog;
 import view.View;
 
 import javax.swing.*;
@@ -20,15 +21,13 @@ public class Controller implements ActionListener, IObserver {
     private BlackJack bj;
     private ClientConnection clientConnection;
     private String userName;
+    private LoginDialog loginDialog;
 
-    public Controller(View view) throws IOException {
-        this.view = view;
+    public Controller() throws IOException {
+        this.loginDialog = new LoginDialog(this);
+        this.view = new View(this);
         this.bj = new BlackJack();
-        userName = JOptionPane.showInputDialog("Nombre");
-        this.clientConnection = new ClientConnection("localhost", 3001, new User(userName));
-        this.view.setUserName(userName);
-        this.view.getAnotherButton().addActionListener(this);
-        this.view.getNoMoreButton().addActionListener(this);
+        this.clientConnection = new ClientConnection();
         updateUI();
     }
 
@@ -55,6 +54,19 @@ public class Controller implements ActionListener, IObserver {
                 } catch (EmptyDeckException ex) {
                     handleException(ex);
                 }
+                break;
+            case "LOGIN":
+                String [] data = loginDialog.getData();
+                try {
+                    userName = data[0];
+                    this.clientConnection.connectToServer(data[1], new User(data[0]));
+                    loginDialog.dispose();
+                    view.setUserName(userName);
+                    view.setVisible(true);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+
                 break;
         }
         updateUI();
