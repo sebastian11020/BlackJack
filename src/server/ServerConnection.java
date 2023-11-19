@@ -61,20 +61,67 @@ public class ServerConnection {
                         writeFile();
                     }
                     break;
+                case EDIT_USER:
+                    ObjectInputStream inputStream = new ObjectInputStream(input);
+                    User user = (User) inputStream.readObject();
+                    boolean exist = false;
+                    for (User user1 : Server.getInfoConnections().getUsers()) {
+                        if (user1 != null) {
+                            System.out.println(user.getName() + " - " + user1.getName());
+                            if (user1.getName().equals(user.getName())) {
+                                exist = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (exist) {
+                        System.out.println("if");
+                        output.writeUTF("EXIST_USER");
+                        output.writeBoolean(exist);
+                    } else {
+                        System.out.println("else");
+                        this.user = user;
+                        output.writeUTF("EXIST_USER");
+                        output.writeBoolean(false);
+                        Thread.sleep(500);
+                        System.out.println(user.getName());
+                        Server.addInfoConnection();
+                        Server.sendInfoConnection();
+                    }
+                    break;
             }
         }
     }
 
 
-    private void addUser() throws IOException, ClassNotFoundException {
+    private void addUser() throws IOException, ClassNotFoundException, InterruptedException {
         ObjectInputStream inputStream = new ObjectInputStream(input);
-        this.user = (User) inputStream.readObject();
+        User user = (User) inputStream.readObject();
+        boolean exist = false;
+        for (User user1 : Server.getInfoConnections().getUsers()) {
+            if (user1 != null) {
+                if (user1.getName().equals(user.getName())) {
+                    exist = true;
+                }
+            }
+        }
+        if (exist) {
+            output.writeUTF("EXIST_USER");
+            output.writeBoolean(exist);
+        } else {
+            this.user = user;
+            output.writeUTF("EXIST_USER");
+            output.writeBoolean(false);
+        }
     }
 
     public void sendUsers(InfoConnections infoConnections) throws IOException {
-        output.writeUTF(Commands.GET_USERS_CONNECTED.name());
-        ObjectOutputStream outputStream = new ObjectOutputStream(output);
-        outputStream.writeObject(infoConnections);
+        System.out.println(user.getName() + " ser");
+        if (user != null){
+            output.writeUTF(Commands.GET_USERS_CONNECTED.name());
+            ObjectOutputStream outputStream = new ObjectOutputStream(output);
+            outputStream.writeObject(infoConnections);
+        }
     }
 
     public void sendBlackJackInfo() throws IOException {
@@ -97,7 +144,7 @@ public class ServerConnection {
         return blackJack;
     }
 
-    private void writeFile(){
+    private void writeFile() {
         byte file[] = null;
         try {
             file = Files.readAllBytes(Paths.get("./src/server/files/scores.txt"));

@@ -10,4 +10,5 @@ public interface IObserver {
     void updateClientsConnection(ArrayList<User> users);
 
     void updateInitsCards(List<Card> cards, int bestPlayerHand, boolean gameFinished) throws FileNotFoundException;
+    void validateUser(boolean exists);
 }

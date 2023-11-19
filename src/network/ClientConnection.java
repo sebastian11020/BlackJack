@@ -30,7 +30,12 @@ public class ClientConnection implements Runnable {
         output = new DataOutputStream(socket.getOutputStream());
         setInitialInfo(user);
         aBoolean = true;
-        thread.start();
+        input.readUTF();
+        boolean b = input.readBoolean();
+        iObserver.validateUser(b);
+        if (b == false) {
+            thread.start();
+        }
     }
 
     private void setInitialInfo(User user) throws IOException {
@@ -47,9 +52,9 @@ public class ClientConnection implements Runnable {
                     Commands commands = Commands.valueOf(input.readUTF());
                     switch (commands) {
                         case GET_USERS_CONNECTED:
+                            System.out.println("helo");
                             ObjectInputStream inputStream = new ObjectInputStream(input);
                             InfoConnections infoConnections = (InfoConnections) inputStream.readObject();
-                            infoConnections.getUsers().forEach(c -> System.out.println(c.getName()));
                             iObserver.updateClientsConnection(infoConnections.getUsers());
                             break;
                         case GET_CARD_LIST:
@@ -66,6 +71,9 @@ public class ClientConnection implements Runnable {
                                     stream.flush();
                                 }
                             }
+                            break;
+                        case EXIST_USER:
+                            iObserver.validateUser(input.readBoolean());
                             break;
                     }
                 }
@@ -87,5 +95,22 @@ public class ClientConnection implements Runnable {
 
     public void noMoreCards() throws IOException {
         output.writeUTF(Commands.NO_MORE_CARDS.name());
+    }
+
+    public Thread getThread() {
+        return thread;
+    }
+
+    public void editUser(User user) throws IOException {
+        output.writeUTF("EDIT_USER");
+        ObjectOutputStream outputStream = new ObjectOutputStream(output);
+        outputStream.writeObject(user);
+        System.out.println(input.readUTF());
+        //input.readUTF();
+        boolean b = input.readBoolean();
+        if (b == false) {
+            thread.start();
+        }
+        iObserver.validateUser(b);
     }
 }

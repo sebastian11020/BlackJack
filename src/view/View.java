@@ -262,14 +262,16 @@ public class View extends JFrame {
         }
         aux.setLayout(new GridLayout(users.size() + 1, 1));
         for (User user : users) {
-            if (user.isTurn()) {
-                aux.add(new JLabel("Turno del jugador " + user.getName()));
-            } else {
-                aux.add(new JLabel(user.getName()));
-            }
-            if (user.getName().equals(userName) && user.isTurn()) {
-                this.anotherButton.setEnabled(true);
-                this.noMoreButton.setEnabled(true);
+            if (user != null) {
+                if (user.isTurn()) {
+                    aux.add(new JLabel("Turno del jugador " + user.getName()));
+                } else {
+                    aux.add(new JLabel(user.getName()));
+                }
+                if (user.getName().equals(userName) && user.isTurn()) {
+                    this.anotherButton.setEnabled(true);
+                    this.noMoreButton.setEnabled(true);
+                }
             }
         }
         playersPanel.add(aux, BorderLayout.CENTER);

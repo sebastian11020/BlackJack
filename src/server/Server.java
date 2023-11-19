@@ -85,9 +85,10 @@ public class Server {
                             Socket socket = server.accept();
                             ServerConnection serverConnection = new ServerConnection(socket);
                             connections.put(id, serverConnection);
-                            addInfoConnection();
-                            sendInfoConnection();
-                            id++;
+                                addInfoConnection();
+                                sendInfoConnection();
+                                id++;
+
                         } else {
                             connectionPermited = false;
                             infoConnections.getUsers().get(0).setTurn(true);

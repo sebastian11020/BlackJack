@@ -22,12 +22,14 @@ public class Controller implements ActionListener, IObserver {
     private ClientConnection clientConnection;
     private String userName;
     private LoginDialog loginDialog;
+    private boolean exist;
 
     public Controller() throws IOException {
         this.loginDialog = new LoginDialog(this);
         this.view = new View(this);
         this.bj = new BlackJack();
         this.clientConnection = new ClientConnection();
+        this.exist = false;
         updateUI();
     }
 
@@ -60,15 +62,17 @@ public class Controller implements ActionListener, IObserver {
             case "LOGIN":
                 String [] data = loginDialog.getData();
                 try {
-                    userName = data[0];
-                    this.clientConnection.connectToServer(data[1], new User(data[0]));
-                    loginDialog.dispose();
-                    view.setUserName(userName);
-                    view.setVisible(true);
+                    if (exist){
+                        System.out.println("hola");
+                        userName = data[0];
+                        this.clientConnection.editUser(new User(data[0]));
+                    } else {
+                        userName = data[0];
+                        this.clientConnection.connectToServer(data[1], new User(data[0]));
+                    }
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
-
                 break;
         }
         updateUI();
@@ -95,5 +99,17 @@ public class Controller implements ActionListener, IObserver {
     @Override
     public void updateInitsCards(List<server.models.Card> cards, int bestPlayerHand, boolean gameFinished) throws FileNotFoundException {
         view.updatePlayerPanel(cards, bestPlayerHand, gameFinished);
+    }
+
+    @Override
+    public void validateUser(boolean exists) {
+        this.exist = exists;
+        if (exists){
+            JOptionPane.showMessageDialog(null, "Nombre de usuario no disponible");
+        } else {
+            loginDialog.dispose();
+            view.setUserName(userName);
+            view.setVisible(true);
+        }
     }
 }
