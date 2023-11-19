@@ -11,4 +11,5 @@ public interface IObserver {
 
     void updateInitsCards(List<Card> cards, int bestPlayerHand, boolean gameFinished) throws FileNotFoundException;
     void validateUser(boolean exists);
+    void winner(String name,int points);
 }

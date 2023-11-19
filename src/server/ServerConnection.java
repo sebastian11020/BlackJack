@@ -5,6 +5,7 @@ import network.Commands;
 import server.models.BlackJack;
 import server.models.BlackJackInfo;
 import server.models.EmptyDeckException;
+import server.models.JugadorGanador;
 import server.persistence.ReadAndWrite;
 
 import java.io.*;
@@ -22,7 +23,6 @@ public class ServerConnection {
     private Socket socket;
     private User user;
     private BlackJack blackJack;
-
 
     public ServerConnection(Socket socket) throws IOException {
         this.socket = socket;
@@ -59,6 +59,8 @@ public class ServerConnection {
                     if (Server.getTurn() == Server.getInfoConnections().getUsers().size()) {
                         writeScore();
                         writeFile();
+                        sendWinner();
+                        Server.sendInfoConnection();
                     }
                     break;
                 case EDIT_USER:
@@ -116,12 +118,19 @@ public class ServerConnection {
     }
 
     public void sendUsers(InfoConnections infoConnections) throws IOException {
-        System.out.println(user.getName() + " ser");
         if (user != null){
             output.writeUTF(Commands.GET_USERS_CONNECTED.name());
             ObjectOutputStream outputStream = new ObjectOutputStream(output);
             outputStream.writeObject(infoConnections);
         }
+    }
+
+    public void sendWinner() throws IOException {
+        output.writeUTF(Commands.GET_WINNER.name());
+        ObjectOutputStream outputStream = new ObjectOutputStream(output);
+        BlackJack blackJack1 = new BlackJack();
+        JugadorGanador winner = new JugadorGanador(blackJack1.getWinnerName(),blackJack1.getWinnerPoints());
+        outputStream.writeObject(winner);
     }
 
     public void sendBlackJackInfo() throws IOException {

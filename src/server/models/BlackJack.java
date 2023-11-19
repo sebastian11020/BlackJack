@@ -1,10 +1,11 @@
 package server.models;
 
-import java.util.LinkedList;
-import java.util.List;
+import server.persistence.ReadAndWrite;
+
+import java.io.FileNotFoundException;
+import java.util.*;
 
 public class BlackJack {
-    //private Hand bankHand;
     public boolean gameFinished = false;
     private Deck deck;
     private Hand playerHand;
@@ -23,10 +24,8 @@ public class BlackJack {
 
     public void reset() throws EmptyDeckException {
         try {
-            //this.bankHand.clear();
             this.playerHand.clear();
             this.gameFinished = false;
-            //this.bankHand.add(this.deck.draw());
             this.playerHand.add(this.deck.draw());
             this.playerHand.add(this.deck.draw());
         } catch (EmptyDeckException ex) {
@@ -34,40 +33,13 @@ public class BlackJack {
             System.exit(-1);
         }
     }
-
     public String getPlayerHandString() {
         return this.playerHand.toString();
     }
 
-    /*public String getBankHandString()
-    {
-        return this.bankHand.toString();
-    }*/
-
     public int getPlayerBest() {
         return this.playerHand.best();
     }
-
-    /*public int getBankBest()
-    {
-        return this.bankHand.best();
-    }*/
-
-   /* public boolean isPlayerWinner()
-    {
-        if(this.isGameFinished() && this.getPlayerBest() <= 21  && (this.getPlayerBest() > this.getBankBest() || this.getBankBest() > 21))
-            return true;
-        return false;
-    }/*
-    */
-
-    /*public boolean isBankWinner()
-    {
-        if(this.isGameFinished() && this.getBankBest() <= 21 && (this.getBankBest() > this.getPlayerBest() || this.getPlayerBest() > 21))
-            return true;
-        return false;
-    }*/
-
     public boolean isGameFinished() {
         if (gameFinished)
             return true;
@@ -86,32 +58,88 @@ public class BlackJack {
         }
     }
 
-    /*public void bankLastTurn() throws EmptyDeckException
-    {
-        try
-        {
-            if(!(this.isGameFinished()) && this.getPlayerBest() <= 21 && this.getBankBest() <= 21)
-                while(this.getBankBest() < this.getPlayerBest())
-                    this.bankHand.add(this.deck.draw());
-            gameFinished = true;
-        }
-        catch(EmptyDeckException ex)
-        {
-            System.err.println(ex.getMessage());
-            System.exit(-1);
-        }
-    }*/
-
     public List<Card> getPlayerCardList() {
         List<Card> originalList = playerHand.getCardList();
         LinkedList<Card> copyList = new LinkedList<Card>(originalList);
         return copyList;
     }
 
-    /*public List<Card> getBankCardList()
-    {
-        List<Card> originalList = bankHand.getCardList();
-        LinkedList<Card> copyList = new LinkedList<Card>(originalList);
-        return copyList;
-    }*/
+    public String getWinnerName() {
+        ReadAndWrite readAndWrite = new ReadAndWrite();
+
+        try {
+            ArrayList<String> puntajes = readAndWrite.readFile("scores");
+            Map<String, Integer> puntajesMap = new HashMap<>();
+
+            for (String puntaje : puntajes) {
+                String[] partes = puntaje.split(":");
+                String jugador = partes[0].trim(); // Nombre del jugador
+                String[] puntajePartes = partes[1].split("\\[|\\]");
+                String opcionesPuntaje = puntajePartes[1].trim();
+                if(opcionesPuntaje.contains(", ")){
+                    String[] puntajeOopciones = opcionesPuntaje.split(", ");
+                    int posiblidad = Integer.parseInt(puntajeOopciones[0]);
+                    int posiblidad1 = Integer.parseInt(puntajeOopciones[1]);
+                    int mayor = posiblidad>posiblidad1?posiblidad:posiblidad1;
+                    puntajesMap.put(jugador, mayor);
+                }else {
+                    int puntajeTotal = Integer.parseInt(puntajePartes[1].trim()); // Puntaje total
+                    puntajesMap.put(jugador, puntajeTotal);
+                }
+            }
+
+            JugadorGanador jugadorGanador = encontrarGanador(puntajesMap);
+            return jugadorGanador.getNombre();
+
+        } catch (FileNotFoundException e) {
+            System.err.println("Archivo no encontrado: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    public int getWinnerPoints() {
+        ReadAndWrite readAndWrite = new ReadAndWrite();
+
+        try {
+            ArrayList<String> puntajes = readAndWrite.readFile("scores");
+            Map<String, Integer> puntajesMap = new HashMap<>();
+
+            for (String puntaje : puntajes) {
+                String[] partes = puntaje.split(":");
+                String jugador = partes[0].trim();
+                String[] puntajePartes = partes[1].split("\\[|\\]");
+                int puntajeTotal = Integer.parseInt(puntajePartes[1].trim());
+                puntajesMap.put(jugador, puntajeTotal);
+            }
+
+            JugadorGanador jugadorGanador = encontrarGanador(puntajesMap);
+            return jugadorGanador.getPuntos();
+
+        } catch (FileNotFoundException e) {
+            System.err.println("Archivo no encontrado: " + e.getMessage());
+        }
+
+        return -1;
+    }
+
+
+    private static JugadorGanador encontrarGanador(Map<String, Integer> puntajes) {
+        String ganador = "";
+        int maxPuntaje = -1;
+
+        for (Map.Entry<String, Integer> entry : puntajes.entrySet()) {
+            String jugador = entry.getKey();
+            int puntaje = entry.getValue();
+
+            if (puntaje <= 21 && puntaje > maxPuntaje) {
+                maxPuntaje = puntaje;
+                ganador = jugador;
+            }
+        }
+
+        return new JugadorGanador(ganador, maxPuntaje);
+    }
 }
+
+

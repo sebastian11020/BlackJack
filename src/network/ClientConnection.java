@@ -4,6 +4,7 @@ import model.IObserver;
 import model.User;
 import server.InfoConnections;
 import server.models.BlackJackInfo;
+import server.models.JugadorGanador;
 
 import java.io.*;
 import java.net.Socket;
@@ -52,7 +53,6 @@ public class ClientConnection implements Runnable {
                     Commands commands = Commands.valueOf(input.readUTF());
                     switch (commands) {
                         case GET_USERS_CONNECTED:
-                            System.out.println("helo");
                             ObjectInputStream inputStream = new ObjectInputStream(input);
                             InfoConnections infoConnections = (InfoConnections) inputStream.readObject();
                             iObserver.updateClientsConnection(infoConnections.getUsers());
@@ -62,15 +62,19 @@ public class ClientConnection implements Runnable {
                             BlackJackInfo blackJackInfo = (BlackJackInfo) inputStream1.readObject();
                             iObserver.updateInitsCards(blackJackInfo.getPlayerCardList(), blackJackInfo.getPlayerBest(), blackJackInfo.isFinishGame());
                             break;
+                        case GET_WINNER:
+                            ObjectInputStream inputStream2 = new ObjectInputStream(input);
+                            JugadorGanador jugadorGanador = (JugadorGanador) inputStream2.readObject();
+                            iObserver.winner(jugadorGanador.getNombre(),jugadorGanador.getPuntos());
+                            break;
                         case READ_FILE:
                             int size = input.readInt();
                             byte file[] = new byte[size];
-                            try (OutputStream stream = Files.newOutputStream(Paths.get("./src/files/scores.txt"))) {
-                                for (int read = -1; (read = input.read(file)) >= 0; ) {
+                                OutputStream stream = Files.newOutputStream(Paths.get("./src/files/scores.txt"));
+                                    int read = input.read(file);
                                     stream.write(file, 0, read);
                                     stream.flush();
-                                }
-                            }
+                                stream.close();
                             break;
                         case EXIST_USER:
                             iObserver.validateUser(input.readBoolean());
@@ -78,7 +82,7 @@ public class ClientConnection implements Runnable {
                     }
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -96,7 +100,6 @@ public class ClientConnection implements Runnable {
     public void noMoreCards() throws IOException {
         output.writeUTF(Commands.NO_MORE_CARDS.name());
     }
-
     public Thread getThread() {
         return thread;
     }

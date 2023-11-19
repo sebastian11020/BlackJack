@@ -88,68 +88,6 @@ public class View extends JFrame {
         JLabel label = new JLabel(icon);
         p.add(label);
     }
-
-    /*public void updateBankPanel() throws FileNotFoundException
-    {
-        this.bankPanel.removeAll();
-        for(Card c : this.bj.getBankCardList())
-        {
-            StringBuilder name = new StringBuilder();
-            name.append(c.getColorName()+"_"+c.getValueSymbole());
-            try
-            {
-                addToPanel(this.bankPanel,name.toString());
-            }
-            catch(FileNotFoundException ex)
-            {
-                System.err.println(ex.getMessage());
-                System.exit(-1);
-            }
-        }
-        JLabel best = new JLabel("Player Best : "+this.bj.getBankBest());
-        this.bankPanel.add(best);
-        if(this.bj.getBankBest() == 21)
-        {
-            try
-            {
-                addToPanel(this.bankPanel,"blackjack");
-            }
-            catch(FileNotFoundException ex)
-            {
-                System.err.println(ex.getMessage());
-                System.exit(-1);
-            }
-        }
-        if(this.bj.isGameFinished())
-        {
-            if(this.bj.isBankWinner())
-            {
-                try
-                {
-                    addToPanel(this.bankPanel,"winner");
-                }
-                catch(FileNotFoundException ex)
-                {
-                    System.err.println(ex.getMessage());
-                    System.exit(-1);
-                }
-            }
-            else
-            {
-                try
-                {
-                    addToPanel(this.bankPanel,"looser");
-                }
-                catch(FileNotFoundException ex)
-                {
-                    System.err.println(ex.getMessage());
-                    System.exit(-1);
-                }
-            }
-        }
-        this.bankPanel.updateUI();
-    }*/
-
     public void updatePlayerPanel(List<Card> cards, int bestPlayerHand, boolean gameFinished) throws FileNotFoundException {
         this.playerPanel.removeAll();
         if (cards != null) {
@@ -176,82 +114,10 @@ public class View extends JFrame {
             if (gameFinished) {
                 anotherButton.setEnabled(false);
                 noMoreButton.setEnabled(false);
-            /*if(this.bj.isPlayerWinner())
-            {
-                try
-                {
-                    addToPanel(this.playerPanel,"winner");
-                }
-                catch(FileNotFoundException ex)
-                {
-                    System.err.println(ex.getMessage());
-                    System.exit(-1);
-                }
-            }
-            else if(this.bj.getPlayerBest() == this.bj.getBankBest())
-            {
-                try
-                {
-                    addToPanel(this.playerPanel,"draw");
-                }
-                catch(FileNotFoundException ex)
-                {
-                    System.err.println(ex.getMessage());
-                    System.exit(-1);
-                }
-            }
-            else
-            {
-                try
-                {
-                    addToPanel(this.playerPanel,"looser");
-                }
-                catch(FileNotFoundException ex)
-                {
-                    System.err.println(ex.getMessage());
-                    System.exit(-1);
-                }
-            }*/
             }
             this.playerPanel.updateUI();
         }
     }
-
-    /*public void actionPerformed(ActionEvent e) {
-
-        switch (e.getActionCommand()) {
-            case "another":
-                try {
-                    this.bj.playerDrawAnotherCard();
-                    if (this.bj.isGameFinished()) {
-                        this.anotherButton.setEnabled(false);
-                        this.noMoreButton.setEnabled(false);
-                    } else {
-                        this.anotherButton.setEnabled(true);
-                        this.noMoreButton.setEnabled(true);
-                    }
-                } catch (EmptyDeckException ex) {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    System.exit(-1);
-                }
-                break;
-            case "noMore":
-                this.anotherButton.setEnabled(false);
-                this.noMoreButton.setEnabled(false);
-                break;
-            case "reset":
-                try {
-                    this.bj.reset();
-                    this.anotherButton.setEnabled(true);
-                    this.noMoreButton.setEnabled(true);
-                } catch (EmptyDeckException ex) {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    System.exit(-1);
-                }
-                break;
-        }
-    }*/
-
     public void updateClientConnection(ArrayList<User> users) {
         playersPanel.removeAll();
         JPanel aux = new JPanel();
@@ -284,5 +150,8 @@ public class View extends JFrame {
         this.userName = userName;
         revalidate();
         repaint();
+    }
+    public void showMessage(String message){
+        JOptionPane.showMessageDialog(null,message);
     }
 }

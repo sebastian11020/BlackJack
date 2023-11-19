@@ -79,8 +79,7 @@ public class Controller implements ActionListener, IObserver {
     }
 
     private void updateUI() {
-        //view.updatePlayerPanel(cards);
-        //view.updateBankPanel();
+
     }
 
     private void handleException(Exception e) {
@@ -111,5 +110,9 @@ public class Controller implements ActionListener, IObserver {
             view.setUserName(userName);
             view.setVisible(true);
         }
+    }
+    @Override
+    public void winner(String name, int points) {
+        view.showMessage("El ganador es :"+name+"con"+points);
     }
 }
