@@ -1,22 +1,27 @@
 package controller;
 import model.*;
+import network.ClientConnection;
 import view.View;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Main implements ActionListener {
+public class Controller implements ActionListener, IObserver{
     private View view;
-    private BlackJack model;
+    private BlackJack bj;
+    private ClientConnection clientConnection;
 
-    public Main(View view) {
+    public Controller(View view) throws IOException {
         this.view = view;
-        this.model = new BlackJack();
+        this.bj = new BlackJack();
+        this.clientConnection = new ClientConnection("localhost", 3001, new User(JOptionPane.showInputDialog("Nombre")));
         this.view.getAnotherButton().addActionListener(this);
         this.view.getNoMoreButton().addActionListener(this);
-        this.view.getResetButton().addActionListener(this);
         updateUI();
     }
 
@@ -25,21 +30,21 @@ public class Main implements ActionListener {
         switch (e.getActionCommand()) {
             case "another":
                 try {
-                    model.playerDrawAnotherCard();
+                    bj.playerDrawAnotherCard();
                 } catch (EmptyDeckException ex) {
                     handleException(ex);
                 }
                 break;
             case "noMore":
-                try {
+                /*try {
                     model.bankLastTurn();
                 } catch (EmptyDeckException ex) {
                     handleException(ex);
-                }
+                }*/
                 break;
             case "reset":
                 try {
-                    model.reset();
+                    bj.reset();
                 } catch (EmptyDeckException ex) {
                     handleException(ex);
                 }
@@ -49,22 +54,25 @@ public class Main implements ActionListener {
     }
 
     private void updateUI() {
-        try {
-            view.updatePlayerPanel();
-            view.updateBankPanel();
-        } catch (FileNotFoundException ex) {
-            handleException(ex);
-        }
+        //view.updatePlayerPanel(cards);
+        //view.updateBankPanel();
     }
 
-    private void handleException(Exception ex) {
-        ex.printStackTrace();
+    private void handleException(Exception e) {
+        e.printStackTrace();
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            View view = new View();
-            new Main(view);
-        });
+    public void setObserver() {
+        clientConnection.setObserver(this);
+    }
+
+    @Override
+    public void updateClientsConnection(ArrayList<User> users) {
+        view.updateClientConnection(users);
+    }
+
+    @Override
+    public void updateInitsCards(List<server.models.Card> cards) throws FileNotFoundException {
+        view.updatePlayerPanel(cards);
     }
 }
