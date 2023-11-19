@@ -255,7 +255,7 @@ public class View extends JFrame {
     public void updateClientConnection(ArrayList<User> users) {
         playersPanel.removeAll();
         JPanel aux = new JPanel();
-        if (users.size() < 3) {
+        if (users.size() < 4) {
             playersPanel.add(new JLabel("Esperando jugadores..."), BorderLayout.NORTH);
         } else {
             playersPanel.add(new JLabel("Juego Iniciado!"), BorderLayout.NORTH);
