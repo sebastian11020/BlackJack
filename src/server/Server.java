@@ -1,5 +1,8 @@
 package server;
 
+import model.User;
+import server.models.EmptyDeckException;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,22 +13,65 @@ import java.util.logging.Logger;
 public class Server {
 
     private static final int PORT = 3001;
+    private static ConcurrentHashMap<Integer, ServerConnection> connections;
+    private static InfoConnections infoConnections;
+    private static int turn;
     private ServerSocket server;
-    private ConcurrentHashMap<Integer, ServerConnection> connections;
     private int id;
-    private InfoConnections infoConnections;
-    private boolean connectionpermited;
-
+    private boolean connectionPermited;
 
     public Server() throws IOException {
         this.server = new ServerSocket(PORT);
         this.connections = new ConcurrentHashMap<>();
         this.id = 1;
+        this.turn = 0;
         this.infoConnections = new InfoConnections();
-        this.connectionpermited = true;
+        this.connectionPermited = true;
         manageNewConnections();
         manageConnections();
         Logger.getGlobal().log(Level.INFO, "Server Run on port 3001....");
+    }
+
+    public static void addInfoConnection() throws InterruptedException {
+        Thread.sleep(1000);
+        infoConnections = new InfoConnections();
+        if (turn < infoConnections.getUsers().size()) {
+            infoConnections.getUsers().get(turn).setTurn(true);
+        }
+        for (ServerConnection connection : connections.values()) {
+            infoConnections.addUser(connection.getUser());
+        }
+    }
+
+    public static void sendInfoConnection() throws IOException {
+        for (ServerConnection connection : connections.values()) {
+            connection.sendUsers(infoConnections);
+        }
+    }
+
+    public static void nextTurn() {
+        for (int i = 0; i < infoConnections.getUsers().size(); i++) {
+            if (infoConnections.getUsers().get(i).isTurn()) {
+                infoConnections.getUsers().get(i).setTurn(false);
+                turn = i + 1;
+                break;
+            }
+        }
+        if (turn < infoConnections.getUsers().size()) {
+            infoConnections.getUsers().get(turn).setTurn(true);
+        } else {
+            for (User user : infoConnections.getUsers()) {
+                user.setTurn(false);
+            }
+        }
+    }
+
+    public static int getTurn() {
+        return turn;
+    }
+
+    public static InfoConnections getInfoConnections() {
+        return infoConnections;
     }
 
     private void manageNewConnections() {
@@ -33,17 +79,16 @@ public class Server {
             @Override
             public void run() {
                 try {
-                    while (connectionpermited) {
-                        if (id <= 2) {
+                    while (connectionPermited) {
+                        if (id <= 3) {
                             Socket socket = server.accept();
                             ServerConnection serverConnection = new ServerConnection(socket);
                             connections.put(id, serverConnection);
                             addInfoConnection();
-                            System.out.println(infoConnections.getUsers().get(0));
                             sendInfoConnection();
                             id++;
                         } else {
-                            connectionpermited = false;
+                            connectionPermited = false;
                             infoConnections.getUsers().get(0).setTurn(true);
                             sendInfoConnection();
                             sendCards();
@@ -68,6 +113,10 @@ public class Server {
                             connection.manageRequest();
                         } catch (IOException | ClassNotFoundException e) {
                             e.printStackTrace();
+                        } catch (EmptyDeckException e) {
+                            throw new RuntimeException(e);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                     try {
@@ -79,20 +128,6 @@ public class Server {
             }
         });
         connectionManagerThread.start();
-    }
-
-    private void addInfoConnection() throws InterruptedException {
-        Thread.sleep(1000);
-        infoConnections = new InfoConnections();
-        for (ServerConnection connection : connections.values()) {
-            infoConnections.addUser(connection.getUser());
-        }
-    }
-
-    private void sendInfoConnection() throws IOException {
-        for (ServerConnection connection : connections.values()) {
-            connection.sendUsers(infoConnections);
-        }
     }
 
     private void sendCards() throws IOException {

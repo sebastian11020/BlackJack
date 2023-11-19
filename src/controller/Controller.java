@@ -1,5 +1,9 @@
 package controller;
-import model.*;
+
+import model.BlackJack;
+import model.EmptyDeckException;
+import model.IObserver;
+import model.User;
 import network.ClientConnection;
 import view.View;
 
@@ -11,15 +15,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Controller implements ActionListener, IObserver{
+public class Controller implements ActionListener, IObserver {
     private View view;
     private BlackJack bj;
     private ClientConnection clientConnection;
+    private String userName;
 
     public Controller(View view) throws IOException {
         this.view = view;
         this.bj = new BlackJack();
-        this.clientConnection = new ClientConnection("localhost", 3001, new User(JOptionPane.showInputDialog("Nombre")));
+        userName = JOptionPane.showInputDialog("Nombre");
+        this.clientConnection = new ClientConnection("localhost", 3001, new User(userName));
+        this.view.setUserName(userName);
         this.view.getAnotherButton().addActionListener(this);
         this.view.getNoMoreButton().addActionListener(this);
         updateUI();
@@ -30,17 +37,17 @@ public class Controller implements ActionListener, IObserver{
         switch (e.getActionCommand()) {
             case "another":
                 try {
-                    bj.playerDrawAnotherCard();
-                } catch (EmptyDeckException ex) {
-                    handleException(ex);
+                    clientConnection.anotherCard();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
                 }
                 break;
             case "noMore":
-                /*try {
-                    model.bankLastTurn();
-                } catch (EmptyDeckException ex) {
-                    handleException(ex);
-                }*/
+                try {
+                    clientConnection.noMoreCards();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
                 break;
             case "reset":
                 try {

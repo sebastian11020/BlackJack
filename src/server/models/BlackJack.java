@@ -2,49 +2,40 @@ package server.models;
 
 import java.util.LinkedList;
 import java.util.List;
-public class BlackJack
-{
-    private Deck deck;
-    private Hand playerHand;
+
+public class BlackJack {
     //private Hand bankHand;
     public boolean gameFinished = false;
+    private Deck deck;
+    private Hand playerHand;
 
-    public BlackJack()
-    {
+    public BlackJack() {
         this.deck = new Deck(4);
         //this.bankHand = new Hand();
         this.playerHand = new Hand();
-        try
-        {
+        try {
             this.reset();
-        }
-        catch(EmptyDeckException ex)
-        {
+        } catch (EmptyDeckException ex) {
             ex = new EmptyDeckException("Error, the deck has insuffisent cards");
             System.exit(-1);
         }
     }
 
-    public void reset() throws EmptyDeckException
-    {
-        try
-        {
+    public void reset() throws EmptyDeckException {
+        try {
             //this.bankHand.clear();
             this.playerHand.clear();
             this.gameFinished = false;
             //this.bankHand.add(this.deck.draw());
             this.playerHand.add(this.deck.draw());
             this.playerHand.add(this.deck.draw());
-        }
-        catch(EmptyDeckException ex)
-        {
+        } catch (EmptyDeckException ex) {
             System.err.println(ex.getMessage());
             System.exit(-1);
         }
     }
 
-    public String getPlayerHandString()
-    {
+    public String getPlayerHandString() {
         return this.playerHand.toString();
     }
 
@@ -53,8 +44,7 @@ public class BlackJack
         return this.bankHand.toString();
     }*/
 
-    public int getPlayerBest()
-    {
+    public int getPlayerBest() {
         return this.playerHand.best();
     }
 
@@ -78,24 +68,19 @@ public class BlackJack
         return false;
     }*/
 
-    public boolean isGameFinished()
-    {
-        if(gameFinished)
+    public boolean isGameFinished() {
+        if (gameFinished)
             return true;
         return false;
     }
 
-    public void playerDrawAnotherCard() throws EmptyDeckException
-    {
-        try
-        {
-            if(!(this.isGameFinished()))
+    public void playerDrawAnotherCard() throws EmptyDeckException {
+        try {
+            if (!(this.isGameFinished()))
                 this.playerHand.add(this.deck.draw());
-            if(this.getPlayerBest() > 21)
+            if (this.getPlayerBest() > 21)
                 gameFinished = true;
-        }
-        catch(EmptyDeckException ex)
-        {
+        } catch (EmptyDeckException ex) {
             System.err.println(ex.getMessage());
             System.exit(-1);
         }
@@ -117,8 +102,7 @@ public class BlackJack
         }
     }*/
 
-    public List<Card> getPlayerCardList()
-    {
+    public List<Card> getPlayerCardList() {
         List<Card> originalList = playerHand.getCardList();
         LinkedList<Card> copyList = new LinkedList<Card>(originalList);
         return copyList;

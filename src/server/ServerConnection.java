@@ -1,12 +1,13 @@
 package server;
 
-import java.io.*;
-import java.net.Socket;
-
 import model.User;
 import network.Commands;
 import server.models.BlackJack;
 import server.models.BlackJackInfo;
+import server.models.EmptyDeckException;
+
+import java.io.*;
+import java.net.Socket;
 
 public class ServerConnection {
 
@@ -16,6 +17,7 @@ public class ServerConnection {
     private User user;
     private BlackJack blackJack;
 
+
     public ServerConnection(Socket socket) throws IOException {
         this.socket = socket;
         this.blackJack = new BlackJack();
@@ -23,16 +25,38 @@ public class ServerConnection {
         output = new DataOutputStream(this.socket.getOutputStream());
     }
 
-    public void manageRequest() throws IOException, ClassNotFoundException {
+    public void manageRequest() throws IOException, ClassNotFoundException, EmptyDeckException, InterruptedException {
         if (input.available() > 0) {
             Request request = Request.valueOf(input.readUTF());
             switch (request) {
                 case NEW_USER_INFO:
                     addUser();
                     break;
+                case ANOTHER_CARD:
+                    blackJack.playerDrawAnotherCard();
+                    Thread.sleep(500);
+                    if (blackJack.isGameFinished()) {
+                        Server.nextTurn();
+                        Server.addInfoConnection();
+                        Server.sendInfoConnection();
+                    }
+                    sendBlackJackInfo();
+                    if (Server.getTurn() == Server.getInfoConnections().getUsers().size()) {
+
+                    }
+                    break;
+                case NO_MORE_CARDS:
+                    Server.nextTurn();
+                    Server.addInfoConnection();
+                    Server.sendInfoConnection();
+                    if (Server.getTurn() == Server.getInfoConnections().getUsers().size()) {
+
+                    }
+                    break;
             }
         }
     }
+
 
     private void addUser() throws IOException, ClassNotFoundException {
         ObjectInputStream inputStream = new ObjectInputStream(input);

@@ -1,5 +1,5 @@
 package server;
 
 public enum Request {
-    NEW_USER_INFO
+    ANOTHER_CARD, NEW_USER_INFO, NO_MORE_CARDS
 }

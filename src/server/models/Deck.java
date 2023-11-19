@@ -3,37 +3,33 @@ package server.models;
 import java.util.Collections;
 import java.util.LinkedList;
 
-public class Deck
-{
+public class Deck {
     private LinkedList<Card> cardList = new LinkedList<Card>();
 
-    public Deck(int nbBox)
-    {
-        for(int i = 0; i < nbBox; i++)
-            for(Color c : Color.values())
-                for(Value v : Value.values())
-                    cardList.add(new Card(v,c));
+    public Deck(int nbBox) {
+        for (int i = 0; i < nbBox; i++)
+            for (Color c : Color.values())
+                for (Value v : Value.values())
+                    cardList.add(new Card(v, c));
         Collections.shuffle(cardList);
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         int i = 0;
-        for(Card c : this.cardList)
-        {
-            if(i != this.cardList.size() - 1)
-                sb.append(c+", ");
+        for (Card c : this.cardList) {
+            if (i != this.cardList.size() - 1)
+                sb.append(c + ", ");
             else
                 sb.append(c);
             i++;
         }
         return sb.append(']').toString();
     }
-    public Card draw() throws EmptyDeckException
-    {
-        if(cardList.size() < 1)
+
+    public Card draw() throws EmptyDeckException {
+        if (cardList.size() < 1)
             throw new EmptyDeckException("The deck is empty !");
         return cardList.pollFirst();
     }

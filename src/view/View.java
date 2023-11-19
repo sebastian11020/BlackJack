@@ -18,19 +18,14 @@ public class View extends JFrame implements ActionListener {
     private BlackJack bj;
     private JPanel playerPanel;
     private JPanel playersPanel;
-
-    public JButton getAnotherButton() {
-        return anotherButton;
-    }
-
-    public JButton getNoMoreButton() {
-        return noMoreButton;
-    }
-
     private JButton anotherButton;
     private JButton noMoreButton;
+    private boolean enableButtom;
+    private String userName;
 
     public View() {
+        this.enableButtom = false;
+
         bj = new BlackJack();
         JFrame frame = new JFrame("BlackJack GUI");
         frame.setMinimumSize(new Dimension(640, 480));
@@ -42,8 +37,12 @@ public class View extends JFrame implements ActionListener {
 
         FlowLayout topPanelLay = new FlowLayout();
         topPanel.setLayout(topPanelLay);
-        topPanel.add(this.anotherButton = new JButton("Pedir"));
-        topPanel.add(this.noMoreButton = new JButton("Plantar"));
+        this.anotherButton = new JButton("Pedir");
+        this.noMoreButton = new JButton("Plantar");
+        this.anotherButton.setEnabled(enableButtom);
+        this.noMoreButton.setEnabled(enableButtom);
+        topPanel.add(anotherButton);
+        topPanel.add(noMoreButton);
 
         this.anotherButton.setActionCommand("another");
         this.anotherButton.addActionListener(this);
@@ -65,7 +64,6 @@ public class View extends JFrame implements ActionListener {
         frame.add(centerPanel, BorderLayout.CENTER);
 
         try {
-            //updateBankPanel();
             updatePlayerPanel(null);
         } catch (FileNotFoundException ex) {
             System.err.println(ex.getMessage());
@@ -75,6 +73,14 @@ public class View extends JFrame implements ActionListener {
 
         frame.pack();
         frame.setVisible(true);
+    }
+
+    public JButton getAnotherButton() {
+        return anotherButton;
+    }
+
+    public JButton getNoMoreButton() {
+        return noMoreButton;
     }
 
     public void addToPanel(JPanel p, String token) throws FileNotFoundException {
@@ -229,14 +235,20 @@ public class View extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     System.exit(-1);
                 }
-                //updatePlayerPanel(cards);
                 break;
             case "noMore":
-                //this.bj.bankLastTurn();
                 this.anotherButton.setEnabled(false);
                 this.noMoreButton.setEnabled(false);
-                //updateBankPanel();
-                //updatePlayerPanel(cards);
+                break;
+            case "reset":
+                try {
+                    this.bj.reset();
+                    this.anotherButton.setEnabled(true);
+                    this.noMoreButton.setEnabled(true);
+                } catch (EmptyDeckException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    System.exit(-1);
+                }
                 break;
         }
     }
@@ -244,7 +256,7 @@ public class View extends JFrame implements ActionListener {
     public void updateClientConnection(ArrayList<User> users) {
         playersPanel.removeAll();
         JPanel aux = new JPanel();
-        if (users.size() < 2) {
+        if (users.size() < 3) {
             playersPanel.add(new JLabel("Esperando jugadores..."), BorderLayout.NORTH);
         } else {
             playersPanel.add(new JLabel("Juego Iniciado!"), BorderLayout.NORTH);
@@ -256,10 +268,20 @@ public class View extends JFrame implements ActionListener {
             } else {
                 aux.add(new JLabel(user.getName()));
             }
+            if (user.getName().equals(userName) && user.isTurn()) {
+                this.anotherButton.setEnabled(true);
+                this.noMoreButton.setEnabled(true);
+            }
         }
         playersPanel.add(aux, BorderLayout.CENTER);
         revalidate();
         repaint();
         playersPanel.updateUI();
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+        revalidate();
+        repaint();
     }
 }

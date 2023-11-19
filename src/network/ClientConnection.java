@@ -8,7 +8,7 @@ import server.models.BlackJackInfo;
 import java.io.*;
 import java.net.Socket;
 
-public class ClientConnection implements Runnable{
+public class ClientConnection implements Runnable {
 
     private Socket socket;
     private DataInputStream input;
@@ -41,7 +41,7 @@ public class ClientConnection implements Runnable{
 
     @Override
     public void run() {
-        while (true){
+        while (true) {
             try {
                 if (input.available() > 0) {
                     Commands commands = Commands.valueOf(input.readUTF());
@@ -70,5 +70,13 @@ public class ClientConnection implements Runnable{
     public void setObserver(IObserver observer) {
         this.iObserver = observer;
         thread.start();
+    }
+
+    public void anotherCard() throws IOException {
+        output.writeUTF(Commands.ANOTHER_CARD.name());
+    }
+
+    public void noMoreCards() throws IOException {
+        output.writeUTF(Commands.NO_MORE_CARDS.name());
     }
 }
