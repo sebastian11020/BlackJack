@@ -80,7 +80,7 @@ public class ServerConnection {
     public void sendBlackJackInfo() throws IOException {
         output.writeUTF(Commands.GET_CARD_LIST.name());
         ObjectOutputStream outputStream = new ObjectOutputStream(output);
-        BlackJackInfo blackJackInfo = new BlackJackInfo(blackJack.getPlayerCardList(), blackJack.getPlayerBest());
+        BlackJackInfo blackJackInfo = new BlackJackInfo(blackJack.getPlayerCardList(), blackJack.getPlayerBest(), blackJack.isGameFinished());
         outputStream.writeObject(blackJackInfo);
     }
 

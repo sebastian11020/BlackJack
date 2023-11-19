@@ -44,6 +44,8 @@ public class Controller implements ActionListener, IObserver {
             case "noMore":
                 try {
                     clientConnection.noMoreCards();
+                    view.getAnotherButton().setEnabled(false);
+                    view.getNoMoreButton().setEnabled(false);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -91,7 +93,7 @@ public class Controller implements ActionListener, IObserver {
     }
 
     @Override
-    public void updateInitsCards(List<server.models.Card> cards, int bestPlayerHand) throws FileNotFoundException {
-        view.updatePlayerPanel(cards, bestPlayerHand);
+    public void updateInitsCards(List<server.models.Card> cards, int bestPlayerHand, boolean gameFinished) throws FileNotFoundException {
+        view.updatePlayerPanel(cards, bestPlayerHand, gameFinished);
     }
 }

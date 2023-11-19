@@ -55,7 +55,7 @@ public class ClientConnection implements Runnable {
                         case GET_CARD_LIST:
                             ObjectInputStream inputStream1 = new ObjectInputStream(input);
                             BlackJackInfo blackJackInfo = (BlackJackInfo) inputStream1.readObject();
-                            iObserver.updateInitsCards(blackJackInfo.getPlayerCardList(), blackJackInfo.getPlayerBest());
+                            iObserver.updateInitsCards(blackJackInfo.getPlayerCardList(), blackJackInfo.getPlayerBest(), blackJackInfo.isFinishGame());
                             break;
                         case READ_FILE:
                             int size = input.readInt();
