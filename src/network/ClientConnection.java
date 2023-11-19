@@ -15,19 +15,20 @@ public class ClientConnection implements Runnable {
     private DataOutputStream output;
     private IObserver iObserver;
     private Thread thread;
+    private static String host;
 
     public ClientConnection(String host, int port, User user) throws IOException {
         this.socket = new Socket(host, port);
         thread = new Thread(this);
         input = new DataInputStream(socket.getInputStream());
         output = new DataOutputStream(socket.getOutputStream());
-
+        this.host=host;
         setInitialInfo(user);
     }
 
     public static void main(String[] args) {
         try {
-            new ClientConnection("localhost", 3001, new User("paco"));
+            new ClientConnection(host, 3001, new User("paco"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
