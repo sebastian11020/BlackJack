@@ -20,12 +20,14 @@ public class Controller implements ActionListener, IObserver {
     private BlackJack bj;
     private ClientConnection clientConnection;
     private String userName;
+    private String host;
 
     public Controller(View view) throws IOException {
         this.view = view;
         this.bj = new BlackJack();
         userName = JOptionPane.showInputDialog("Nombre");
-        this.clientConnection = new ClientConnection("localhost", 3001, new User(userName));
+        host = JOptionPane.showInputDialog("Direccion ip");
+        this.clientConnection = new ClientConnection(host, 3001, new User(userName));
         this.view.setUserName(userName);
         this.view.getAnotherButton().addActionListener(this);
         this.view.getNoMoreButton().addActionListener(this);
