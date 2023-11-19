@@ -18,22 +18,21 @@ public class ClientConnection implements Runnable {
     private IObserver iObserver;
     private Thread thread;
 
-    public ClientConnection(String host, int port, User user) throws IOException {
-        this.socket = new Socket(host, port);
+    private boolean isExecute;
+    public ClientConnection(){
         thread = new Thread(this);
+        this.isExecute = false;
+    }
+    public void connectToServer(String host, User user) throws IOException {
+        this.socket = new Socket(host, 3001);
         input = new DataInputStream(socket.getInputStream());
         output = new DataOutputStream(socket.getOutputStream());
-
         setInitialInfo(user);
+        this.isExecute = true;
+        thread.start();
     }
 
-    public static void main(String[] args) {
-        try {
-            new ClientConnection("localhost", 3001, new User("paco"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
     private void setInitialInfo(User user) throws IOException {
         output.writeUTF("NEW_USER_INFO");
@@ -43,12 +42,15 @@ public class ClientConnection implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        while (isExecute) {
             try {
-                if (input.available() > 0) {
+
+                if ( input.available() > 0) {
+                    System.out.println(input.available());
                     Commands commands = Commands.valueOf(input.readUTF());
                     switch (commands) {
                         case GET_USERS_CONNECTED:
+                            System.out.println("info server");
                             ObjectInputStream inputStream = new ObjectInputStream(input);
                             InfoConnections infoConnections = (InfoConnections) inputStream.readObject();
                             infoConnections.getUsers().forEach(c -> System.out.println(c.getName()));
@@ -71,6 +73,7 @@ public class ClientConnection implements Runnable {
                             break;
                     }
                 }
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (ClassNotFoundException e) {
@@ -81,7 +84,7 @@ public class ClientConnection implements Runnable {
 
     public void setObserver(IObserver observer) {
         this.iObserver = observer;
-        thread.start();
+
     }
 
     public void anotherCard() throws IOException {

@@ -44,6 +44,7 @@ public class Server {
     }
 
     public static void sendInfoConnection() throws IOException {
+        System.out.println("enviando");
         for (ServerConnection connection : connections.values()) {
             connection.sendUsers(infoConnections);
         }

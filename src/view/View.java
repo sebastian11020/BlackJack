@@ -14,7 +14,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class View extends JFrame implements ActionListener {
+public class View extends JFrame {
     private BlackJack bj;
     private JPanel playerPanel;
     private JPanel playersPanel;
@@ -23,14 +23,14 @@ public class View extends JFrame implements ActionListener {
     private boolean enableButtom;
     private String userName;
 
-    public View() {
+    public View(ActionListener listener) {
         this.enableButtom = false;
 
         bj = new BlackJack();
-        JFrame frame = new JFrame("BlackJack GUI");
-        frame.setMinimumSize(new Dimension(640, 480));
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setMinimumSize(new Dimension(640, 480));
+        setSize(new Dimension(640, 480));
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel topPanel = new JPanel();
         JPanel centerPanel = new JPanel();
@@ -45,9 +45,9 @@ public class View extends JFrame implements ActionListener {
         topPanel.add(noMoreButton);
 
         this.anotherButton.setActionCommand("another");
-        this.anotherButton.addActionListener(this);
+        this.anotherButton.addActionListener(listener);
         this.noMoreButton.setActionCommand("noMore");
-        this.noMoreButton.addActionListener(this);
+        this.noMoreButton.addActionListener(listener);
 
 
         GridLayout centerPanelLay = new GridLayout(2, 1);
@@ -60,8 +60,8 @@ public class View extends JFrame implements ActionListener {
         centerPanel.add(playersPanel);
         centerPanel.add(playerPanel);
 
-        frame.add(topPanel, BorderLayout.NORTH);
-        frame.add(centerPanel, BorderLayout.CENTER);
+        add(topPanel, BorderLayout.NORTH);
+        add(centerPanel, BorderLayout.CENTER);
 
         try {
             updatePlayerPanel(null, 0);
@@ -71,8 +71,7 @@ public class View extends JFrame implements ActionListener {
         }
 
 
-        frame.pack();
-        frame.setVisible(true);
+        pack();
     }
 
     public JButton getAnotherButton() {
@@ -218,7 +217,7 @@ public class View extends JFrame implements ActionListener {
         }
     }
 
-    public void actionPerformed(ActionEvent e) {
+    /*public void actionPerformed(ActionEvent e) {
 
         switch (e.getActionCommand()) {
             case "another":
@@ -251,7 +250,7 @@ public class View extends JFrame implements ActionListener {
                 }
                 break;
         }
-    }
+    }*/
 
     public void updateClientConnection(ArrayList<User> users) {
         playersPanel.removeAll();

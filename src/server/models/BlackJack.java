@@ -36,17 +36,7 @@ public class BlackJack {
     }
 
     public String getPlayerHandString() {
-        List<Card> originalList = playerHand.getCardList();
-        System.out.println("ts "+originalList.toString());
-        LinkedList<Card> copyList = new LinkedList<Card>(originalList);
-        return copyList.toString();
-    }
-
-    public List<Card> getPlayerCardList() {
-        List<Card> originalList = playerHand.getCardList();
-        System.out.println("l " + originalList.toString());
-        LinkedList<Card> copyList = new LinkedList<Card>(originalList);
-        return copyList;
+        return this.playerHand.toString();
     }
 
     /*public String getBankHandString()
@@ -88,7 +78,7 @@ public class BlackJack {
         try {
             if (!(this.isGameFinished()))
                 this.playerHand.add(this.deck.draw());
-            if (this.getPlayerBest() > 21)
+            if (this.getPlayerBest() >= 21)
                 gameFinished = true;
         } catch (EmptyDeckException ex) {
             System.err.println(ex.getMessage());
@@ -111,6 +101,12 @@ public class BlackJack {
             System.exit(-1);
         }
     }*/
+
+    public List<Card> getPlayerCardList() {
+        List<Card> originalList = playerHand.getCardList();
+        LinkedList<Card> copyList = new LinkedList<Card>(originalList);
+        return copyList;
+    }
 
     /*public List<Card> getBankCardList()
     {
