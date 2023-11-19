@@ -5,9 +5,15 @@ import network.Commands;
 import server.models.BlackJack;
 import server.models.BlackJackInfo;
 import server.models.EmptyDeckException;
+import server.persistence.ReadAndWrite;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ServerConnection {
 
@@ -42,7 +48,8 @@ public class ServerConnection {
                     }
                     sendBlackJackInfo();
                     if (Server.getTurn() == Server.getInfoConnections().getUsers().size()) {
-
+                        writeScore();
+                        writeFile();
                     }
                     break;
                 case NO_MORE_CARDS:
@@ -50,7 +57,8 @@ public class ServerConnection {
                     Server.addInfoConnection();
                     Server.sendInfoConnection();
                     if (Server.getTurn() == Server.getInfoConnections().getUsers().size()) {
-
+                        writeScore();
+                        writeFile();
                     }
                     break;
             }
@@ -61,7 +69,6 @@ public class ServerConnection {
     private void addUser() throws IOException, ClassNotFoundException {
         ObjectInputStream inputStream = new ObjectInputStream(input);
         this.user = (User) inputStream.readObject();
-        System.out.println(user.getName());
     }
 
     public void sendUsers(InfoConnections infoConnections) throws IOException {
@@ -73,8 +80,42 @@ public class ServerConnection {
     public void sendBlackJackInfo() throws IOException {
         output.writeUTF(Commands.GET_CARD_LIST.name());
         ObjectOutputStream outputStream = new ObjectOutputStream(output);
-        BlackJackInfo blackJackInfo = new BlackJackInfo(blackJack.getPlayerCardList());
+        BlackJackInfo blackJackInfo = new BlackJackInfo(blackJack.getPlayerCardList(), blackJack.getPlayerBest());
         outputStream.writeObject(blackJackInfo);
+    }
+
+    public void writeScore() throws IOException {
+        ReadAndWrite readAndWrite = new ReadAndWrite();
+        ArrayList<String> scores = new ArrayList<>();
+        for (ServerConnection connection : Server.getConnections().values()) {
+            scores.add(connection.getUser().getName() + "-" + connection.blackJack.getPlayerHandString());
+        }
+        readAndWrite.writeFile("scores", scores);
+    }
+
+    private BlackJack getBlackJack() {
+        return blackJack;
+    }
+
+    private void writeFile(){
+        byte file[] = null;
+        try {
+            file = Files.readAllBytes(Paths.get("./src/server/files/scores.txt"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            if (file != null) {
+                output.writeUTF(Request.READ_FILE.name());
+                output.writeInt(file.length);
+                output.write(file);
+                output.flush();
+            } else {
+                Logger.getGlobal().log(Level.INFO, "No se pudo leer el archivo");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public User getUser() {

@@ -135,4 +135,8 @@ public class Server {
             connection.sendBlackJackInfo();
         }
     }
+
+    public static ConcurrentHashMap<Integer, ServerConnection> getConnections() {
+        return connections;
+    }
 }

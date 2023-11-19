@@ -9,5 +9,5 @@ import java.util.List;
 public interface IObserver {
     void updateClientsConnection(ArrayList<User> users);
 
-    void updateInitsCards(List<Card> cards) throws FileNotFoundException;
+    void updateInitsCards(List<Card> cards, int bestPlayerHand) throws FileNotFoundException;
 }

@@ -7,6 +7,8 @@ import server.models.BlackJackInfo;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class ClientConnection implements Runnable {
 
@@ -55,7 +57,17 @@ public class ClientConnection implements Runnable {
                         case GET_CARD_LIST:
                             ObjectInputStream inputStream1 = new ObjectInputStream(input);
                             BlackJackInfo blackJackInfo = (BlackJackInfo) inputStream1.readObject();
-                            iObserver.updateInitsCards(blackJackInfo.getPlayerCardList());
+                            iObserver.updateInitsCards(blackJackInfo.getPlayerCardList(), blackJackInfo.getPlayerBest());
+                            break;
+                        case READ_FILE:
+                            int size = input.readInt();
+                            byte file[] = new byte[size];
+                            try (OutputStream stream = Files.newOutputStream(Paths.get("./src/files/scores.txt"))) {
+                                for (int read = -1; (read = input.read(file)) >= 0; ) {
+                                    stream.write(file, 0, read);
+                                    stream.flush();
+                                }
+                            }
                             break;
                     }
                 }

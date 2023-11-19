@@ -36,7 +36,17 @@ public class BlackJack {
     }
 
     public String getPlayerHandString() {
-        return this.playerHand.toString();
+        List<Card> originalList = playerHand.getCardList();
+        System.out.println("ts "+originalList.toString());
+        LinkedList<Card> copyList = new LinkedList<Card>(originalList);
+        return copyList.toString();
+    }
+
+    public List<Card> getPlayerCardList() {
+        List<Card> originalList = playerHand.getCardList();
+        System.out.println("l " + originalList.toString());
+        LinkedList<Card> copyList = new LinkedList<Card>(originalList);
+        return copyList;
     }
 
     /*public String getBankHandString()
@@ -101,12 +111,6 @@ public class BlackJack {
             System.exit(-1);
         }
     }*/
-
-    public List<Card> getPlayerCardList() {
-        List<Card> originalList = playerHand.getCardList();
-        LinkedList<Card> copyList = new LinkedList<Card>(originalList);
-        return copyList;
-    }
 
     /*public List<Card> getBankCardList()
     {

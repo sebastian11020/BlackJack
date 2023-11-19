@@ -1,9 +1,9 @@
 package view;
 
 import model.BlackJack;
-import model.Card;
 import model.EmptyDeckException;
 import model.User;
+import server.models.Card;
 
 import javax.swing.*;
 import java.awt.*;
@@ -64,7 +64,7 @@ public class View extends JFrame implements ActionListener {
         frame.add(centerPanel, BorderLayout.CENTER);
 
         try {
-            updatePlayerPanel(null);
+            updatePlayerPanel(null, 0);
         } catch (FileNotFoundException ex) {
             System.err.println(ex.getMessage());
             System.exit(-1);
@@ -153,10 +153,10 @@ public class View extends JFrame implements ActionListener {
         this.bankPanel.updateUI();
     }*/
 
-    public void updatePlayerPanel(List<server.models.Card> cards) throws FileNotFoundException {
+    public void updatePlayerPanel(List<Card> cards, int bestPlayerHand) throws FileNotFoundException {
         this.playerPanel.removeAll();
         if (cards != null) {
-            for (Card c : this.bj.getPlayerCardList()) {
+            for (Card c : cards) {
                 StringBuilder name = new StringBuilder();
                 name.append(c.getColorName() + "_" + c.getValueSymbole());
                 try {
@@ -166,9 +166,9 @@ public class View extends JFrame implements ActionListener {
                     System.exit(-1);
                 }
             }
-            JLabel best = new JLabel("Player Best : " + this.bj.getPlayerBest());
+            JLabel best = new JLabel("Player Best : " + bestPlayerHand);
             this.playerPanel.add(best);
-            if (this.bj.getPlayerBest() == 21) {
+            if (bestPlayerHand == 21) {
                 try {
                     addToPanel(this.playerPanel, "blackjack");
                 } catch (FileNotFoundException ex) {

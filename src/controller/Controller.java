@@ -79,7 +79,7 @@ public class Controller implements ActionListener, IObserver {
     }
 
     @Override
-    public void updateInitsCards(List<server.models.Card> cards) throws FileNotFoundException {
-        view.updatePlayerPanel(cards);
+    public void updateInitsCards(List<server.models.Card> cards, int bestPlayerHand) throws FileNotFoundException {
+        view.updatePlayerPanel(cards, bestPlayerHand);
     }
 }
