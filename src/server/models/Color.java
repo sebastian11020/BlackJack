@@ -1,4 +1,4 @@
-package model;
+package server.models;
 
 public enum Color {
     HEART("\u2665"), SPADE("\u2660"), CLUB("\u2663"), DIAMOND("\u2666");
