@@ -1,4 +1,4 @@
-package model;
+package server.models;
 
 public enum Value {
     AS(1, "A"), TWO(2, "2"), THREE(3, "3"), FOUR(4, "4"), FIVE(5, "5"), SIX(6, "6"), SEVEN(7, "7"),

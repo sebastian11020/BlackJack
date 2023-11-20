@@ -1,4 +1,4 @@
-package model;
+package server.models;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

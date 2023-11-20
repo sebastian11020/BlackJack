@@ -1,4 +1,4 @@
-package model;
+package server.models;
 
 import java.util.Collections;
 import java.util.LinkedList;

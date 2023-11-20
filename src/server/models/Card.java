@@ -1,6 +1,8 @@
-package model;
+package server.models;
 
-public class Card {
+import java.io.Serializable;
+
+public class Card implements Serializable {
     private Value value;
     private Color color;
 
