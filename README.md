@@ -2,6 +2,8 @@
 
 ## Presenado por:
 * Leandro Arturo Luis Sierra
+* Sebastian Daza Delgadillo
+* Samuel David Vargas Millan
 
 ## Version de JDK:
 *  20
