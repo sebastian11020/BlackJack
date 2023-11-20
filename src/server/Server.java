@@ -81,7 +81,7 @@ public class Server {
             public void run() {
                 try {
                     while (connectionPermited) {
-                        if (id <= 2) {
+                        if (id <= 1) {
                             Socket socket = server.accept();
                             ServerConnection serverConnection = new ServerConnection(socket);
                             connections.put(id, serverConnection);
