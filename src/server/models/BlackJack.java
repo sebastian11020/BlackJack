@@ -120,13 +120,13 @@ public class BlackJack {
             System.err.println("Archivo no encontrado: " + e.getMessage());
         }
 
-        return -1;
+        return 0;
     }
 
 
     private static JugadorGanador encontrarGanador(Map<String, Integer> puntajes) {
-        String ganador = "";
-        int maxPuntaje = -1;
+        String ganador = "No hay ganador ";
+        int maxPuntaje = 0;
 
         for (Map.Entry<String, Integer> entry : puntajes.entrySet()) {
             String jugador = entry.getKey();

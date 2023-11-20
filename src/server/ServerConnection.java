@@ -51,7 +51,6 @@ public class ServerConnection {
                         writeScore();
                         writeFile();
                         sendWinner();
-                        Server.sendInfoConnection();
                     }
                     break;
                 case NO_MORE_CARDS:
@@ -62,7 +61,6 @@ public class ServerConnection {
                         writeScore();
                         writeFile();
                         sendWinner();
-                        Server.sendInfoConnection();
                     }
                     break;
                 case EDIT_USER:

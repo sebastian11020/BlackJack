@@ -113,6 +113,6 @@ public class Controller implements ActionListener, IObserver {
     }
     @Override
     public void winner(String name, int points) {
-        view.showMessage("El ganador es :"+name+"con"+points);
+        view.showMessage("El ganador es :"+name+" con "+points);
     }
 }
