@@ -4,6 +4,7 @@
 * Leandro Arturo Luis Sierra
 * Sebastian Daza Delgadillo
 * Samuel David Vargas Millan
+* Juan José Forero 
 
 ## Version de JDK:
 *  20
