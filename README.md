@@ -8,3 +8,7 @@
 
 ## Puerto Utilizado:
 * 3001
+
+## Main del proyecto:
+* Servidor: ServerRunner
+* Cliente: Main
