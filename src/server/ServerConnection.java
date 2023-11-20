@@ -50,6 +50,8 @@ public class ServerConnection {
                     if (Server.getTurn() == Server.getInfoConnections().getUsers().size()) {
                         writeScore();
                         writeFile();
+                        sendWinner();
+                        Server.sendInfoConnection();
                     }
                     break;
                 case NO_MORE_CARDS:
